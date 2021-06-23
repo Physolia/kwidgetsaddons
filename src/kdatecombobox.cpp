@@ -41,7 +41,7 @@ public:
     void setDateRange(const QDate &minDate, const QDate &maxDate, const QString &minWarnMsg, const QString &maxWarnMsg);
     bool isInDateRange(const QDate &date) const;
 
-    void clickDate();
+    void datePicked();
     void selectDate(QAction *action);
     void editDate(const QString &text);
     void enterDate(const QDate &date);
@@ -244,7 +244,7 @@ void KDateComboBoxPrivate::selectDate(QAction *action)
     }
 }
 
-void KDateComboBoxPrivate::clickDate()
+void KDateComboBoxPrivate::datePicked()
 {
     QDate date = m_datePicker->date();
     if (isInDateRange(date)) {
@@ -334,11 +334,11 @@ KDateComboBox::KDateComboBox(QWidget *parent)
         }
     });
 
-    connect(d->m_datePicker, &KDatePicker::dateEntered, this, [this](const QDate &date) {
-        d->enterDate(date);
+    connect(d->m_datePicker, &KDatePicker::dateEntered, this, [this]() {
+        d->datePicked();
     });
     connect(d->m_datePicker, &KDatePicker::tableClicked, this, [this]() {
-        d->clickDate();
+        d->datePicked();
     });
 }
 

@@ -1,5 +1,7 @@
 /*
     SPDX-FileCopyrightText: 2011 John Layt <john@layt.net>
+    SPDX-FileCopyrightText: 2021 g10 Code GmbH
+    SPDX-FileContributor: Ingo Klöcker <dev@ingo-kloecker.de>
 
     SPDX-License-Identifier: LGPL-2.0-or-later
 */
@@ -9,6 +11,8 @@
 #include <QDate>
 
 #include "kdatecombobox.h"
+#include "kdatepicker.h"
+
 #include <QLineEdit>
 #include <QSignalSpy>
 #include <QTest>
@@ -220,4 +224,27 @@ void KDateComboBoxTest::testSignals()
     QCOMPARE(spyDateEntered.count(), 1);
     QCOMPARE(spyDateChanged.count(), 1);
     clearSpies();
+}
+
+void KDateComboBoxTest::testDatePickerIntegration()
+{
+    // GIVEN
+    QScopedPointer<KDateComboBox> combo{new KDateComboBox};
+    combo->setDateRange(QDate{2001, 1, 1}, QDate{2106, 1, 1});
+    combo->setDate(QDate{2021, 6, 23});
+
+    // WHEN the date picker emits tableClicked signal with an invalid date
+    auto datePicker = combo->findChild<KDatePicker *>();
+    QVERIFY(datePicker);
+    datePicker->setDate(QDate{1921, 6, 23});
+    Q_EMIT datePicker->tableClicked();
+
+    // THEN
+    QCOMPARE(combo->date(), QDate(2021, 6, 23));
+
+    // WHEN the date picker emits dateEntered signal with an invalid date
+    Q_EMIT datePicker->dateEntered(QDate{1921, 6, 23});
+
+    // THEN
+    QCOMPARE(combo->date(), QDate(2021, 6, 23));
 }
